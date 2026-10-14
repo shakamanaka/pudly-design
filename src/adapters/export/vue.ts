@@ -26,7 +26,7 @@ type VueRenderNode = Record<string, unknown> & {
 type VueRenderPage = { id: string; name: string; roots: VueRenderNode[] };
 
 const packageJson = {
-  name: 'codex-design-export',
+  name: 'pudly-export',
   private: true,
   type: 'module',
   engines: { node: '^22.12.0 || ^24.0.0 || >=26.0.0', npm: '>=10.0.0' },

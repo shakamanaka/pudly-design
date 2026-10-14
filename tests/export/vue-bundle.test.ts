@@ -19,12 +19,12 @@ test('Vue ZIP preserves runnable paths and includes source graph plus fidelity r
     textStyle: {},
   };
   document.pages.page_1!.rootNodeIds.push('title');
-  const result = await new BundledExporter(new VueExporter(), 'codex-design-vue.zip').export(document);
+  const result = await new BundledExporter(new VueExporter(), 'pudly-vue.zip').export(document);
 
   expect(result.target).toBe('vue');
   expect(result.status).toBe('succeeded');
   expect(result.artifacts).toHaveLength(1);
-  expect(result.artifacts[0]).toMatchObject({ name: 'codex-design-vue.zip', mimeType: 'application/zip', encoding: 'base64' });
+  expect(result.artifacts[0]).toMatchObject({ name: 'pudly-vue.zip', mimeType: 'application/zip', encoding: 'base64' });
 
   const archive = unzipSync(Buffer.from(result.artifacts[0]!.contents, 'base64'));
   expect(Object.keys(archive)).toEqual(expect.arrayContaining([

@@ -1,4 +1,4 @@
-# Codex Design foundation milestone
+# Pudly foundation milestone
 
 This report is a historical checkpoint. For current acceptance and limitations, see [design quality verification](design-quality-verification.md) and [project explorer verification](project-explorer-verification.md).
 

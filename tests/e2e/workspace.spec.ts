@@ -4,7 +4,7 @@ test('selection, inspector edits, history, snapshots, and reopen use saved docum
   const created = await page.request.post('/api/project/new', { headers: { origin: 'http://127.0.0.1:5174' }, data: { name: 'Browser editing QA' } });
   expect(created.status()).toBe(201);
   await page.goto('/');
-  await expect(page.getByRole('main', { name: 'Codex Design workspace' })).toBeVisible();
+  await expect(page.getByRole('main', { name: 'Pudly workspace' })).toBeVisible();
   await expect(page.getByRole('region', { name: 'Design canvas' })).toBeVisible();
   await expect(page.getByRole('textbox', { name: 'Describe a design or edit' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Desktop preview' })).toBeVisible();

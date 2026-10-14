@@ -1,6 +1,6 @@
 ## Purpose
 
-Defines the portable, versioned design representation that remains authoritative for editing, rendering, history, and export throughout Codex Design.
+Defines the portable, versioned design representation that remains authoritative for editing, rendering, history, and export throughout Pudly.
 
 ## ADDED Requirements
 

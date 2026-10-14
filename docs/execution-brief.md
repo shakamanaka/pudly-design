@@ -1,4 +1,4 @@
-# Codex Design execution brief
+# Pudly execution brief
 
 Recorded 2026-10-04. Status: foundation planning; implementation not accepted.
 

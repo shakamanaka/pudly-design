@@ -376,7 +376,7 @@ export class CodexCliAdapter implements CodingAgent {
 
   private buildPrompt(request: CodingAgentRequest): string {
     return [
-      "You produce semantic design operations for Codex Design.",
+      "You produce semantic design operations for Pudly.",
       "Return the JSON object required by the supplied output schema. Put complete typed operation objects in the operations array, and include a summary string. Do not write files or run commands.",
       buildDesignBrief(request),
       "Only propose operation types listed in operationCapabilities. Do not modify existing nodes outside the provided document fragment. New nodes require new unique IDs.",

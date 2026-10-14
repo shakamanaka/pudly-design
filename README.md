@@ -1,6 +1,8 @@
-# Codex Design
+# Pudly
 
-Codex Design 1.0 is a basic, early-stage, local-first visual design environment. Users describe a page, edit its elements on a canvas, and export the resulting design. The versioned `DesignDocument` is authoritative; the Vue canvas and export files are derived from it.
+**AI-powered interface design.**
+
+Describe an interface, refine it on an editable canvas, and export your design. Pudly 1.0 is a basic, early-stage, local-first design environment. The versioned `DesignDocument` is authoritative; the Vue canvas and export files are derived from it.
 
 Generation is bounded to five minutes for ordinary requests and ten minutes for full-page creation by default. Provider connections let users select a verified provider, model, and effort for each run; the app does not silently switch providers or paid tiers. A recorded Luna/medium run establishes a usable baseline for one bounded page-generation workflow. It does not establish a general quality pass rate. Haiku generation has not passed acceptance, so its design quality remains unproven. See [design quality evidence](docs/design-quality-verification.md) for the recorded result and current limits.
 
@@ -69,3 +71,7 @@ Domain modules must not import Vue, browser, process, filesystem, or MCP APIs. A
 ## Author and license
 
 Created by Camilo Escobar ([camilo.escobar2@utp.edu.co](mailto:camilo.escobar2@utp.edu.co)). This project is licensed under the [MIT License](LICENSE). Reuse must preserve the copyright and license notices. See [third-party notices](THIRD_PARTY_NOTICES.md) for reused tooling.
+
+## Compatibility after the rename
+
+Pudly was previously named Codex Design. Existing `.codex-design/` data directories, `CODEX_DESIGN_*` environment variables, editor preference keys and native `.codex.json` files remain supported without migration. Codex remains the name of the supported provider/CLI. The checkout folder and historical artifact paths may retain the former name.

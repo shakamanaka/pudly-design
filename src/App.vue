@@ -538,7 +538,7 @@ watch(() => documentModel.value?.id, (id) => {
 <template>
   <main
     class="studio"
-    aria-label="Codex Design workspace"
+    aria-label="Pudly workspace"
   >
     <header class="topbar">
       <div class="brand-lockup">
@@ -546,10 +546,10 @@ watch(() => documentModel.value?.id, (id) => {
           class="brand-mark"
           aria-hidden="true"
         >
-          C
+          P
         </div>
         <div class="brand-name">
-          Codex <span>Design</span>
+          Pudly
         </div>
         <span class="brand-divider" />
         <span class="workspace-name">{{ documentModel?.name ?? 'Untitled project' }}</span>
@@ -770,7 +770,7 @@ watch(() => documentModel.value?.id, (id) => {
               </li>
             </ul>
             <details v-if="activeRun.documentFragment">
-              <summary>Exact context sent to Codex</summary>
+              <summary>Exact context sent to the provider</summary>
               <pre class="context-json">{{ JSON.stringify({ document: activeRun.documentFragment, designSystem: activeRun.designSystemContext, operationCapabilities: activeRun.operationCapabilities }, null, 2) }}</pre>
             </details>
           </details>
@@ -904,7 +904,7 @@ watch(() => documentModel.value?.id, (id) => {
               A design engine, ready for your idea
             </p>
             <h1>Start with a prompt</h1>
-            <p>Describe an interface and Codex will turn the request into an editable design document.</p>
+            <p>Describe an interface and Pudly will turn the request into an editable design document.</p>
             <button
               type="button"
               class="primary-button"

@@ -23,7 +23,7 @@ export function providerPrompt(request: CodingAgentRequest, providerName: string
     ? "Return only the JSON object required by the supplied schema. Use Claude Code's built-in StructuredOutput mechanism required for this schema-constrained response; it is the only permitted tool-like mechanism. Do not use filesystem, network, command-execution, or any other tools."
     : 'Return only the JSON object required by the supplied schema. Do not write files, use tools, or run commands.';
   const prompt = [
-    `You produce semantic design operations for Codex Design using ${providerName}.`,
+    `You produce semantic design operations for Pudly using ${providerName}.`,
     toolInstruction,
     buildDesignBrief(request),
     'Only propose operation types listed in operationCapabilities. Do not modify existing nodes outside the provided document fragment. New nodes require new unique IDs.',

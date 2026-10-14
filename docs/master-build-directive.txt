@@ -1,4 +1,4 @@
-CODEX DESIGN — MASTER BUILD DIRECTIVE
+PUDLY — MASTER BUILD DIRECTIVE
 
 0. MISSION
 
@@ -13,7 +13,7 @@ You are Sol 6.1, acting as the:
 
 for a new product tentatively named:
 
-CODEX DESIGN
+PUDLY
 
 Your mission is to autonomously design, specify, implement, test, audit, and deliver a production-quality AI-native visual design environment built around Codex.
 
@@ -23,7 +23,7 @@ The product intent is comparable to modern AI-native design experiences such as 
 
 1. CRITICAL PRODUCT DEFINITION
 
-Codex Design is NOT:
+Pudly is NOT:
 
 * a visual wrapper around an existing Vue application;
 * a frontend repository previewer;
@@ -35,7 +35,7 @@ Codex Design is NOT:
 * a generic coding IDE;
 * a tool whose primary source of truth is generated Vue code.
 
-Codex Design IS:
+Pudly IS:
 
 An AI-native visual design environment where users create interfaces from scratch through natural language, structured visual editing, reusable design systems, and AI agents.
 
@@ -44,7 +44,7 @@ The fundamental flow is:
 USER INTENT
      │
      ▼
-CODEX DESIGN
+PUDLY
      │
      ▼
 DESIGN AGENT
@@ -110,7 +110,7 @@ NOT screenshots.
 
 The architecture is:
 
-                     CODEX DESIGN
+                     PUDLY
                     DesignDocument
                           │
           ┌───────────────┼────────────────┐
@@ -895,7 +895,7 @@ Do not blindly send the complete DesignDocument for every request.
 
 28. DESIGN SYSTEM
 
-Codex Design must support reusable Design Systems.
+Pudly must support reusable Design Systems.
 
 A Design System is NOT synonymous with Vue components.
 
@@ -1278,15 +1278,15 @@ so transport details do not contaminate the core.
 
 44. FIGMA ROUND-TRIP
 
-Do NOT require full Figma → Codex Design round-trip for MVP.
+Do NOT require full Figma → Pudly round-trip for MVP.
 
 Initial requirement:
 
-Codex Design → Figma
+Pudly → Figma
 
 Future possibility:
 
-Figma → Codex Design
+Figma → Pudly
 
 Document architectural implications without implementing speculative synchronization.
 
@@ -1339,7 +1339,7 @@ Do NOT implement React/etc. merely because the abstraction permits it.
 
 47. LOCAL-FIRST
 
-Initial Codex Design should be local-first.
+Initial Pudly should be local-first.
 
 Prefer:
 
@@ -1519,7 +1519,7 @@ Do NOT equate DOM existence with visual correctness.
 
 Target WCAG 2.2 AA where reasonable.
 
-Codex Design itself must use:
+Pudly itself must use:
 
 * semantic HTML;
 * keyboard navigation;
@@ -1535,7 +1535,7 @@ Generated/exported designs should preserve accessibility semantics where the Des
 
 55. SECURITY
 
-Treat Codex Design as security-sensitive local tooling.
+Treat Pudly as security-sensitive local tooling.
 
 Audit:
 
@@ -1920,7 +1920,7 @@ Avoid documentation bureaucracy.
 
 The first meaningful MVP must allow:
 
-1. Launch Codex Design.
+1. Launch Pudly.
 2. Create a new design project.
 3. Enter a natural-language request.
 4. Send the request through the Codex agent abstraction.
@@ -2211,7 +2211,7 @@ Attempt to break the product.
 Conceptually:
 
 ┌──────────────────────────────────────────────────────────────────┐
-│ Codex Design    Project ▼    1440×900 ▼       Export ▼          │
+│ Pudly    Project ▼    1440×900 ▼       Export ▼          │
 ├──────────────┬───────────────────────────────────┬───────────────┤
 │              │                                   │               │
 │ Pages        │                                   │ Inspector     │
@@ -2435,7 +2435,7 @@ Keep target-specific translation in exporters/adapters.
 
 Once stable enough:
 
-Use Codex Design’s own Design System principles to design Codex Design.
+Use Pudly’s own Design System principles to design Pudly.
 
 Eventually it should be possible to create portions of its own interface using its design environment and export them to Vue.
 
@@ -2625,7 +2625,7 @@ responsive design
 Figma export
 Vue export
 
-Build Codex Design as a design system and design engine first, visual editor second, exporter third.
+Build Pudly as a design system and design engine first, visual editor second, exporter third.
 
 The DesignDocument remains the source of truth.
 

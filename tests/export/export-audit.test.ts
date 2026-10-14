@@ -234,7 +234,7 @@ test('native, Vue, and Figma exporters handle a bounded 100-node document graph'
   expect(JSON.parse(artifactText(native.artifacts, 'design.codex.json')).nodes).toHaveProperty('text_99');
   const tree = JSON.parse(artifactText(vue.artifacts, 'src/design-tree.json')) as Array<{ roots: Array<{ sourceId: string }> }>;
   expect(tree[0]!.roots.map((node) => node.sourceId)).toEqual(ids);
-  const archive = unzipSync(Buffer.from(artifactText(figma.artifacts, 'codex-design-figma-plugin.zip'), 'base64'));
+  const archive = unzipSync(Buffer.from(artifactText(figma.artifacts, 'pudly-figma-plugin.zip'), 'base64'));
   const figmaCode = strFromU8(archive['code.js']!);
   expect(figmaCode).toContain('text_99');
   expect(native.status).toBe('succeeded');

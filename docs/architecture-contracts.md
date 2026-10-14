@@ -1,4 +1,4 @@
-# Codex Design shared contracts
+# Pudly shared contracts
 
 Status: independently reviewed walking-skeleton implementation contract for `design-engine-foundation`. This file freezes the cross-module shapes described by the OpenSpec change. It is normative for the walking skeleton; add later operation capabilities only through explicit negotiation. It does not assert that any interface or capability is implemented.
 
@@ -399,3 +399,7 @@ Full-page composition review requires explicit fixed or fill native vector bound
 Canvas semantic radius measures resolve against radius-category tokens, matching the Vue exporter; they must not fall back to spacing-category resolution. Literal radii remain literal.
 
 Full-page composition review checks supported opaque hex authored-text foreground/background combinations against4.5:1normal/3:1large contrast, following nearest opaque authored ancestor fill and default white artboard; unsupported alpha/complex backgrounds remain inconclusive, not aesthetic certification. At768px image-led horizontal rows with long hug copy receive tablet stacking or fill-bounds guidance. It never changes semantic styles implicitly. Store/shop shared briefs explicitly call for meaningful product/catalog content.
+
+## Product identity compatibility
+
+The product is Pudly. New public package and Vue/Figma archive labels use Pudly; provider names remain accurate. Existing `.codex-design/` persistence, CODEX_DESIGN_* environment controls, editor preference keys and native document formats remain unchanged. The brand rename must not migrate or rewrite existing projects/history.

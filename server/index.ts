@@ -47,7 +47,7 @@ export async function startServer(options: LocalServerOptions = {}): Promise<Ret
   const service = await ProjectService.open(persistence, agent, new LocalAgentRunStore(join(dataDirectory, "runs")), providers);
   service.registerExporter("native", new NativeExporter());
   service.registerExporter("figma", new FigmaExporter());
-  service.registerExporter('vue', new BundledExporter(new VueExporter(), 'codex-design-vue.zip'));
+  service.registerExporter('vue', new BundledExporter(new VueExporter(), 'pudly-vue.zip'));
   const dist = options.staticDirectory ?? join(root, "dist");
   const server = createServer(createLocalApiHandler(service, { ...(existsSync(dist) ? { staticDirectory: dist } : {}), providers }));
   await new Promise<void>((resolveListen, reject) => {
@@ -66,9 +66,9 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
       process.stderr.write("Local server failed: " + error.message + "\n");
       process.exitCode = 1;
     });
-    process.stdout.write("Codex Design server listening on http://127.0.0.1:5174\n");
+    process.stdout.write("Pudly server listening on http://127.0.0.1:5174\n");
   }).catch((error: unknown) => {
-    process.stderr.write("Could not start Codex Design server: " + (error instanceof Error ? error.message : "unknown error") + "\n");
+    process.stderr.write("Could not start Pudly server: " + (error instanceof Error ? error.message : "unknown error") + "\n");
     process.exitCode = 1;
   });
 }

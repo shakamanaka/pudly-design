@@ -1,6 +1,6 @@
 ## Why
 
-Codex Design currently has one fixed local Codex CLI generation path and cannot honestly represent other connected providers, model choices, or effort limits. Users need to choose a real account or API connection and a verified model configuration while keeping credentials in the trusted backend and preserving the existing atomic design-operation boundary.
+Pudly currently has one fixed local Codex CLI generation path and cannot honestly represent other connected providers, model choices, or effort limits. Users need to choose a real account or API connection and a verified model configuration while keeping credentials in the trusted backend and preserving the existing atomic design-operation boundary.
 
 ## What Changes
 

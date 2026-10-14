@@ -502,13 +502,13 @@ export class FigmaExporter implements DesignExporter {
       { code: 'export.figma.plugin-id-required', message: 'Create a development plugin in Figma and replace the manifest ID placeholder with its Figma-assigned ID before importing this bundle. See README.md in the archive.', severity: 'warning' as const },
     ];
     const artifacts = [
-      { name: 'manifest.json', mimeType: 'application/json', encoding: 'utf8' as const, contents: `${JSON.stringify({ name: 'Codex Design Semantic Import', id: 'REPLACE_WITH_FIGMA_ASSIGNED_PLUGIN_ID', api: '1.0.0', main: 'code.js', editorType: ['figma'], documentAccess: 'dynamic-page', networkAccess: { allowedDomains: ['none'] } }, null, 2)}\n` },
+      { name: 'manifest.json', mimeType: 'application/json', encoding: 'utf8' as const, contents: `${JSON.stringify({ name: 'Pudly Semantic Import', id: 'REPLACE_WITH_FIGMA_ASSIGNED_PLUGIN_ID', api: '1.0.0', main: 'code.js', editorType: ['figma'], documentAccess: 'dynamic-page', networkAccess: { allowedDomains: ['none'] } }, null, 2)}\n` },
       { name: 'README.md', mimeType: 'text/markdown', encoding: 'utf8' as const, contents: 'Create a new development plugin in Figma to obtain its assigned plugin ID. Replace the ID placeholder in manifest.json with that ID, import this manifest, and run the plugin in a Figma design file. The plugin imports the first semantic page as editable layers and adds new content beside existing layers. It does not delete or sync prior imports. Review fidelity-report.json for all mapping limits.\n\nManifest reference: https://developers.figma.com/docs/plugins/manifest/\n' },
       { name: 'code.js', mimeType: 'text/javascript', encoding: 'utf8' as const, contents: pluginCode(parsed.value, trees) },
       { name: 'design-document.json', mimeType: 'application/json', encoding: 'utf8' as const, contents: `${JSON.stringify(parsed.value, null, 2)}\n` },
     ];
     const result: ExportResult = { target: 'figma', status: 'partial', artifacts, fidelity, diagnostics };
-    return new BundledExporter({ export: async () => result }, 'codex-design-figma-plugin.zip').export(parsed.value);
+    return new BundledExporter({ export: async () => result }, 'pudly-figma-plugin.zip').export(parsed.value);
   }
 }
 

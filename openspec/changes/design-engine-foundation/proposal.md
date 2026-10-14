@@ -1,6 +1,6 @@
 ## Why
 
-Codex Design has no existing application or domain model, so implementation without shared behavioral contracts risks making renderer code, generated Vue, or an external design tool the accidental source of truth. This change establishes the framework-neutral design engine and an honest initial walking-skeleton boundary before implementation begins.
+Pudly has no existing application or domain model, so implementation without shared behavioral contracts risks making renderer code, generated Vue, or an external design tool the accidental source of truth. This change establishes the framework-neutral design engine and an honest initial walking-skeleton boundary before implementation begins.
 
 ## What Changes
 

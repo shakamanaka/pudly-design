@@ -1,4 +1,4 @@
-# Codex Design
+# Pudly
 
 The full product directive is in docs/master-build-directive.txt. Read docs/development-journal.md and the active OpenSpec change before working.
 

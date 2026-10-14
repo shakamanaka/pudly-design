@@ -176,7 +176,7 @@ class AppServerSession {
   }
 
   private async initialize(): Promise<void> {
-    await this.sendRequest('initialize', { clientInfo: { name: 'codex_design_catalog', title: 'Codex Design model catalog', version: '0.1.0' } });
+    await this.sendRequest('initialize', { clientInfo: { name: 'pudly_catalog', title: 'Pudly model catalog', version: '1.0.0' } });
     if (!this.closed) this.child.stdin.write(`${JSON.stringify({ method: 'initialized', params: {} })}\n`);
   }
 
