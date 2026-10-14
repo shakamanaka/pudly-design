@@ -1,0 +1,19 @@
+node_modules/
+dist/
+coverage/
+playwright-report/
+test-results/
+.env
+.env.*
+!.env.example
+.DS_Store
+.codex-design/
+
+# Machine-specific configuration and credentials
+.codex/config.toml
+.codex/auth.json
+.codex/sessions/
+.codex/log/
+.npmrc
+*.pem
+*.key

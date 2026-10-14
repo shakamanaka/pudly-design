@@ -1,0 +1,38 @@
+# Foundation acceptance audit
+
+Date: 2026-10-05
+
+Scope: independent evidence review for OpenSpec `design-engine-foundation`, task 7.1. This audit does not certify security, accessibility, or performance. Source and tests were checked against the eight active capability specifications and the 7.1 acceptance categories.
+
+## Directly verified in this audit
+
+- Added `tests/audit/acceptance-boundaries.test.ts`. All four focused tests passed in Vitest: the domain import-graph check; a queued-structural-work regression; a representative transaction workload; and the operation-count rejection boundary.
+- The structural regression uses a shallow DAG: an array of ten references to one shared array of fifteen scalar entries, with a twenty-entry traversal budget. It asserts `limit.object-count` at `$.0`, when the first child would exceed the remaining budget after accounting for already queued siblings. The prior guard only subtracted visited entries and could enqueue this child fanout on top of pending siblings. The current `pendingValues` accounting rejects at that point. This checks diagnostic behavior, not peak stack allocation directly.
+- The architecture test scans literal static and dynamic imports under `src/domain` and finds no non-relative module specifiers. Direct source inspection confirmed that the domain's relative import graph is self-contained. The check cannot detect computed imports or runtime access hidden behind global objects; neither pattern was found in the reviewed domain source.
+- A valid batch changing 100 text nodes in a 1,000-node document committed at revision 1. Three focused runs observed 498.6–966.8 ms. These are observations, not a CI threshold or SLA.
+- A 501-operation batch was rejected with `limit.operations` before document drafting; focused runs observed 0.3–3.7 ms. This exercises the configured 500-operation boundary by exceeding it. It does not benchmark a valid 500-operation batch or a 10,000-node document.
+
+Workload environment: macOS, arm64, Node v26.8.1, Vitest 5.0.3. The workload tests assert outcomes and record timings without timing assertions. Heap-used deltas were deliberately excluded: repeated runs varied by tens of megabytes as garbage collection occurred, so they would not be reliable peak-memory evidence. No isolated peak RSS measurement was made. The 5 MiB document and 1 MiB operation-payload limits bound accepted serialized inputs; maximum-size transaction CPU and memory behavior remains unmeasured.
+
+## Coverage evidence reviewed
+
+| 7.1 area | Evidence in checkout | What it establishes | Remaining limit |
+| --- | --- | --- | --- |
+| Atomic transactions and rejection | `tests/domain/operations.test.ts`, `tests/domain/component-mutations.test.ts`, `tests/domain/opaque-ids.test.ts`, new audit test | Invalid middle operations, stale revisions, scope failures, component validation, sparse arrays, and the new structural scheduling budget reject without advancing source state. The API applies on a detached draft. | No independent property-based/fuzz campaign was run. |
+| Cancellation and lifecycle races | `tests/integration/run-lifecycle.test.ts`, `tests/adapters/codex-cli-adapter.test.ts` | Cancellation before commit, cancellation after commit, committed-run history linkage, render failure, adapter cancellation, and timeout have named coverage. | Deterministic tests cover selected interleavings, not every cancellation/process scheduling race. |
+| Stale agent response and scope | `tests/integration/run-lifecycle.test.ts` | A manual edit advances revision while an agent is pending; the stale proposal fails with `revision.conflict` and preserves the manual value. Out-of-scope proposals preserve both selected and sibling nodes. | No stress test with concurrent browser clients was independently run. |
+| Corrupt persistence and recovery | `tests/integration/persistence-history.test.ts`, `tests/integration/persistence-faults.test.ts`, `tests/integration/run-store.test.ts` | Unknown/corrupt project data is retained; injected post-rename fsync faults exercise recovery; corrupt optional run metadata disables generation while preserving direct editing; interrupted runs recover without rerunning the agent. | Fault injection is targeted to named failure points, not exhaustive filesystem crash simulation. |
+| Security boundaries | `tests/adapters/codex-cli-adapter.test.ts`, `tests/adapters/local-api-router.test.ts`, `tests/export/export-audit.test.ts`, `tests/export/vue-bundle.test.ts` | Source review and tests cover argument-based process invocation, shell metacharacter data, timeouts, browser request bounds/origin checks, generated-output escaping, export ZIP path validation, and dangerous keys. | No Codex Security scan or full threat-model assessment was run in this QA assignment. Prior export audit is explicitly focused, not a security certification. |
+| Accessibility | `tests/e2e/component-canvas-a11y.spec.ts`, `tests/audit/accessibility-canvas.spec.ts`, `docs/qa-accessibility.md` | Keyboard selection and selected-state behavior have browser coverage. The focused Chromium audit documented a visible-text/accessibility-name mismatch; a regression test is marked expected-failure until the canvas correction is complete. | Screen-reader behavior, assistive-technology interoperability, contrast across themes, and WCAG conformance remain unverified. Re-run after the in-progress canvas fix. |
+| Architecture boundaries | New import-graph test; `docs/architecture-contracts.md` | Literal domain imports remain local and framework/runtime independent. The domain remains authoritative; UI/adapters consume it through typed contracts. | This static check does not prove all runtime behavior is framework-independent. |
+| Performance | New 1,000-node / 100-operation and 501-operation tests | Gives one representative successful transaction timing and one fast over-limit rejection observation on a stated environment. | Not a maximum-size benchmark, percentile study, or performance guarantee. Full-draft validation after each operation is an expected cost at larger batches. |
+
+## Acceptance state
+
+This audit supplies new focused passing evidence for the traversal-budget and import-boundary checks. Existing test files supply scenario-level evidence for the other categories, but the full 7.1 gate remains open while the visible-text naming correction and Figma template-fidelity correction are in progress and before the post-change full check/browser repeat. Figma export remains the documented offline plugin-archive path; this audit does not claim live authenticated file creation. A real Codex prompt-to-design/browser run is recorded in the development journal by the coordinator, not repeated by this worker.
+
+The Codebase MCP index was ready at the repository root with 1,271 nodes / 3,894 edges and two documented parser-partial test ranges when queried before these audit files and concurrent final fixes. Indexed results were treated as discovery hints and checked against current source. Refresh and recheck retrieval after the final integrated edits before closing the OpenSpec gate.
+
+## Integrated resolution
+
+The coordinator completed the pending accessibility and Figma corrections with separate QA and integrated gates: 129 tests, lint, strict TypeScript and build; five browser tests together including real Codex; four deterministic browser tests repeated on the final build. The previously expected-failure naming test is now a passing normal test. Task 7.1 is closed for the documented local foundation scope, retaining all qualification limits described above.

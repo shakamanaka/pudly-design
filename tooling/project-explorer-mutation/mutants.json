@@ -1,0 +1,49 @@
+{
+  "reportDirectory": ".codex-design/project-explorer-mutation",
+  "timeoutMs": 60000,
+  "baselineTest": "tests/project-library-qa/integration/project-library.test.ts",
+  "mutants": [
+    {
+      "id": "preview-returns-history-envelope",
+      "file": "src/adapters/persistence/local-files.ts",
+      "from": "return structuredClone(project.document);",
+      "to": "return structuredClone(project);",
+      "testName": "previews saved authoritative documents without changing bytes, history, selection, or agent activity"
+    },
+    {
+      "id": "damaged-project-aborts-discovery",
+      "file": "src/adapters/persistence/local-files.ts",
+      "from": "projects.push({ id, name: 'Unavailable project', revision: 0, updatedAt, nodeCount: 0, status: 'unavailable', diagnostic: summaryDiagnostic(error) });",
+      "to": "throw error;",
+      "testName": "isolates a damaged historical file while continuing to list and preview healthy projects"
+    },
+    {
+      "id": "symlink-target-followed",
+      "file": "src/adapters/persistence/local-files.ts",
+      "from": "open(file, constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0))",
+      "to": "open(file, constants.O_RDONLY)",
+      "testName": "rejects unsafe identifiers and refuses symlink entries without reading the target"
+    },
+    {
+      "id": "active-pointer-left-after-removal",
+      "file": "src/adapters/persistence/local-files.ts",
+      "from": "if (wasCurrent) {\n          await unlink(join(this.directory, 'current'));",
+      "to": "if (false && wasCurrent) {\n          await unlink(join(this.directory, 'current'));",
+      "testName": "trashes inactive projects without changing the active project and removes active pointers safely"
+    },
+    {
+      "id": "open-ignores-active-run",
+      "file": "src/application/project-service.ts",
+      "from": "return this.serial(async () => {\n      this.assertNoActiveRun();\n      const project = await this.persistence.load(id);",
+      "to": "return this.serial(async () => {\n      const project = await this.persistence.load(id);",
+      "testName": "blocks create, open, and remove while an agent run is nonterminal"
+    },
+    {
+      "id": "remove-ignores-active-run",
+      "file": "src/application/project-service.ts",
+      "from": "return this.serial(async () => {\n      this.assertNoActiveRun();\n      const removesCurrent = this.current?.document.id === id;",
+      "to": "return this.serial(async () => {\n      const removesCurrent = this.current?.document.id === id;",
+      "testName": "blocks create, open, and remove while an agent run is nonterminal"
+    }
+  ]
+}

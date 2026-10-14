@@ -1,0 +1,27 @@
+# Export fidelity audit
+
+This independent audit compares native, Vue, and Figma export artifacts against the semantic document contract. It does not invoke Figma writes. `tests/export/export-audit.test.ts` adds native round-trip, component-root mapping, fidelity disclosure, hostile-text, Figma token resolution, and bounded 100-node coverage.
+
+## Findings
+
+The independent audit initially had three passing checks and seven failures. The coordinator corrected each defect below; all ten audit cases now pass:
+
+- **Vue component roots lose instance dimensions.** `renderInstance` preserves the template's original root layout but does not apply the instance width/height to fixed/fill axes (`src/adapters/export/vue.ts:363-392`). The exported Button's template root therefore retains hug/fixed sizing even when its selectable instance is fixed-size. `fidelityFor` marks instance and template layout as preserved (`src/adapters/export/vue.ts:422-428`), which overstates the actual output.
+- **Vue component root style overrides are not applied to the root.** The renderer returns the template node with its resolved variant style, then wraps it in a second component-instance node (`src/adapters/export/vue.ts:384-391`). Instance style is left on that wrapper instead of overriding the resolved root style as required by the contract. The regression fixture's red instance fill and opacity remain absent from the template root.
+- **Vue component wrappers apply instance gap and padding.** The outer wrapper still has the instance layout, while the generated `nodeStyle` applies `gap` and `padding` to every frame/group/component instance (`src/adapters/export/vue.ts:303-322`). The fixture uses a 37 px instance gap and 9 px padding; the wrapper receives both even though the template root already owns internal spacing. The cross-module contract requires a spacing-free wrapper.
+- **Figma component roots replace template layout with instance layout.** `renderComponent` merges the instance into the template root and spreads `resolveResponsiveLayout(document, instance, ...)` last (`src/adapters/export/figma.ts:120-129`). This replaces the template root's horizontal mode, 8 px gap, and 16 px padding with the instance's vertical mode, 37 px gap, and 9 px padding. It violates the contract that instance sizing/placement belongs to the instance while root template direction and spacing define its internal layout.
+- **Figma omits template constraint/shadow fidelity entries.** `fidelityFor` walks persisted document nodes and then adds one broad degraded entry per component definition (`src/adapters/export/figma.ts:132-196`); it does not report per-template-node constraints or effects. The plugin runtime ignores template constraints when placing free-layout children and does not create shadow effects (`src/adapters/export/figma.ts:258-280`, `src/adapters/export/figma.ts:310-345`). A component with anchored template nodes or a shadow token therefore lacks a specific omitted/degraded fidelity entry and actionable fallback.
+- **Figma resolves an explicit typography-token font size to zero.** The plugin's `__measure` only reads `valuePx` from token values (`src/adapters/export/figma.ts:216-221`), but typography tokens store `fontSizePx`. When `TextStyle.fontSize` explicitly references a typography token, `__make` calls `__measure` and assigns the fallback zero instead of the token font size (`src/adapters/export/figma.ts:296-304`). Current generic typography/token fidelity entries do not describe this loss.
+
+## Verified behavior
+
+- Native export serializes the validated document and round-trips the complete fixture with deep equality; all native fidelity entries are preserved.
+- Hostile text containing `</script>` and an HTML event-handler payload remains data. Vue uses escaped interpolation and does not use `v-html`; Figma embeds a JSON payload with `<` escaped. The generated Figma script parses and executes in the test's fake Figma runtime without interpreting the payload as code.
+- A bounded 100-node document exports through native, Vue, and Figma adapters. All 100 source IDs appear in the native document, Vue tree, and generated Figma plugin bundle. This is a workload smoke check with no brittle wall-clock threshold.
+- The component browser acceptance test also now checks that the canvas artboard origin is inside the scroll viewport at the default 1440 × 900 / 72% preview, both after first load and after reload; production Playwright passes.
+
+## Discovery and verification
+
+The configured Codebase CLI index was ready at 1,183 nodes / 3,598 edges. The semantic exporter query mostly ranked unrelated UI symbols; literal searches for the inspected fidelity feature strings returned no indexed matches. Per repository guidance, exporter source was inspected directly and verified against the generated artifacts and current tests.
+
+Run `npx vitest run tests/export/export-audit.test.ts` to verify the corrections: all ten cases pass. The coordinator also built the corrected exported Vue application and measured matching wrapper/root bounds in Chromium: 300×88 at desktop and 220×88 at mobile, one 16px padding layer, the instance fill applied to the root, and no page errors. Evidence is in ignored `.codex-design/evidence/vue-component-browser.json` and `vue-component-export.png`. The original audit only changed tests/docs; production fixes were performed by the coordinator.

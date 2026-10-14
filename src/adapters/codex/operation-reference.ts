@@ -1,0 +1,28 @@
+import type { CodingAgentRequest, OperationType } from '../../domain/types';
+
+/** Examples teach the wire contract; the transaction validator remains authoritative. */
+export function operationReference(request: CodingAgentRequest): string {
+  const pageId = request.documentFragment.page?.id ?? 'REQUIRED_PAGE_ID';
+  const exampleLayout = { mode: 'vertical', position: null, width: { kind: 'fixed', value: { kind: 'literal', value: 400, unit: 'px' } }, height: { kind: 'hug', min: null, max: null }, align: 'stretch', justify: 'start', gap: { kind: 'literal', value: 0, unit: 'px' }, padding: { top: { kind: 'literal', value: 0, unit: 'px' }, right: { kind: 'literal', value: 0, unit: 'px' }, bottom: { kind: 'literal', value: 0, unit: 'px' }, left: { kind: 'literal', value: 0, unit: 'px' } } };
+  const exampleStyle = { fill: { kind: 'token', tokenId: 'color.surface' }, textColor: null, radius: null, opacity: null, shadowTokenId: null };
+  const examples: Array<Record<string, unknown> & { type: OperationType }> = [
+    { type: 'node.create', id: 'NEW_UNIQUE_FRAME_ID', name: 'Card', kind: 'frame', pageId, parentId: null, index: request.documentFragment.page?.rootNodeIds.length ?? 0, layout: exampleLayout, style: exampleStyle, visible: true, constraints: { left: null, right: null, top: null, bottom: null, centerX: null, centerY: null }, responsive: [] },
+    { type: 'node.create', id: 'NEW_UNIQUE_TEXT_ID', name: 'Title', kind: 'text', pageId, parentId: 'NEW_UNIQUE_FRAME_ID', index: 0, layout: null, style: null, visible: true, constraints: { left: null, right: null, top: null, bottom: null, centerX: null, centerY: null }, responsive: [], text: 'Welcome', textStyle: { typographyTokenId: 'typography.body', fontSize: null, weight: null, lineHeight: null, align: null } },
+    { type: 'node.create', id: 'NEW_UNIQUE_VECTOR_ID', name: 'Accent star', kind: 'vector', pageId, parentId: 'NEW_UNIQUE_FRAME_ID', index: 1, layout: null, style: { fill: { kind: 'token', tokenId: 'color.primary' }, textColor: null, radius: null, opacity: null, shadowTokenId: null }, visible: true, constraints: { left: null, right: null, top: null, bottom: null, centerX: null, centerY: null }, responsive: [], pathData: 'M 50 4 L 61 38 L 96 38 L 68 58 L 79 92 L 50 72 L 21 92 L 32 58 L 4 38 L 39 38 Z', viewBox: { x: 0, y: 0, width: 100, height: 100 } },
+    { type: 'property.set', nodeId: 'NEW_UNIQUE_TEXT_ID', change: { property: 'text', value: 'Updated title' } },
+    { type: 'layout.set', nodeId: 'NEW_UNIQUE_FRAME_ID', value: exampleLayout },
+    { type: 'style.set', nodeId: 'NEW_UNIQUE_FRAME_ID', value: exampleStyle },
+    { type: 'node.move', nodeId: 'NEW_UNIQUE_TEXT_ID', pageId, parentId: 'NEW_UNIQUE_FRAME_ID', index: 0 },
+    { type: 'node.delete', nodeId: 'NEW_UNIQUE_TEXT_ID', mode: 'subtree' },
+  ];
+  return [
+    'Operation contract examples are typed JSON objects, not JSON strings. Use only negotiated types; examples are not a requested design:',
+    JSON.stringify(examples.filter(operation => request.operationCapabilities.includes(operation.type))),
+    'For creation, choose new unique opaque node IDs; use existing IDs only for edits. Create parents before children. Each new node has empty childIds; child insertion is performed by subsequent node.create operations.',
+    'node.create is a compact typed proposal. Supply its existing opaque id, name, kind, pageId, parentId (or null for page root), zero-based index, nullable layout/style, visible, constraints, and responsive. pageId is always explicit even for children; the transaction rejects a parent on another page. Supported creation kinds are frame, group, text, vector and component-instance. Text additionally requires text and nullable textStyle. A vector requires pathData containing only bounded SVG path commands and viewBox {x,y,width,height} with positive finite dimensions; use style.fill for its color. SVG markup, URLs and other embedded payloads are not supported. An instance additionally requires componentId, variantId, propertyOverrides, nodeOverrides and slotChildren as arrays of {key,value} entries; use definitions/variants/properties supplied in context. Duplicate and dangerous dictionary keys reject.',
+    'Deterministic create defaults: null layout uses the domain DEFAULT_LAYOUT; null style uses {}; null textStyle uses {}. Compilation sets childIds=[]. Other semantic node values (visible, constraints, responsive) are supplied explicitly and preserved. Null on nullable optional layout/style/text-style fields means omit the optional semantic property; it never repairs an invalid value or inserts content.',
+    'Layouts are closed objects with mode, position (object or null), width, height, align, justify, gap and padding. Width/height use fixed with value, or hug/fill with nullable min/max. position belongs inside layout and is valid only for free placement. Measures are {kind:"literal",value:number,unit:"px"} or {kind:"token",tokenId:string}.',
+    'Style is a closed object with nullable fill/textColor/radius/opacity/shadowTokenId. Colors are token references or literal #RRGGBB. TextStyle keys are nullable typographyTokenId/fontSize/weight/lineHeight/align. set operations retain existing operation payload shapes as objects; dictionary values use entry arrays.',
+    'Placement requires pageId and zero-based index. A null parentId inserts at the page root; a parent ID inserts under that frame/group. The atomic domain validator checks that the page, parent and index are compatible. Selected scope allows editing selected descendants and inserting inside selected containers, not unrelated roots.',
+  ].join('\n');
+}

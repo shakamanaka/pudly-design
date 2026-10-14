@@ -1,0 +1,389 @@
+{
+  "reportDirectory": ".codex-design/provider-mutation",
+  "timeoutMs": 120000,
+  "redactions": [
+    "sentinel-credential",
+    "sentinel-secret-key"
+  ],
+  "tests": [
+    "tests/provider-qa/unit/providers.test.ts",
+    "tests/provider-qa/integration/connection-service.test.ts",
+    "tests/provider-qa/integration/project-routing.test.ts",
+    "tests/provider-qa/integration/adapter-failures.test.ts",
+    "tests/provider-qa/integration/adapter-corrections.test.ts",
+    "tests/provider-qa/integration/model-catalog.test.ts",
+    "tests/provider-qa/integration/claude-session-catalog.test.ts"
+  ],
+  "mutants": [
+    {
+      "id": "provider-source-cross-pair-accepted",
+      "area": "provider-source allowlist",
+      "file": "src/domain/providers.ts",
+      "from": "PROVIDER_AUTH_SOURCES[providerId].includes(authSource);",
+      "to": "PROVIDER_AUTH_SOURCES[providerId].includes(authSource) || isProviderId(providerId);",
+      "testPath": "tests/provider-qa/unit/providers.test.ts",
+      "testName": "rejects unsupported provider and authentication-source combinations",
+      "expectedFailure": "Codex must reject Claude subscription credentials"
+    },
+    {
+      "id": "unsupported-effort-accepted",
+      "area": "model/effort selection validation",
+      "file": "src/domain/providers.ts",
+      "from": "if (!isProviderEffort(input.effort)) return { ok: false, code: 'provider.selection.effort'",
+      "to": "if (false && !isProviderEffort(input.effort)) return { ok: false, code: 'provider.selection.effort'",
+      "testPath": "tests/provider-qa/unit/providers.test.ts",
+      "testName": "rejects unsupported effort before provider dispatch",
+      "expectedFailure": "unsupported effort must fail selection parsing"
+    },
+    {
+      "id": "secret-bearing-run-metadata-accepted",
+      "area": "run metadata redaction boundary",
+      "file": "src/domain/providers.ts",
+      "from": "!hasOnly(input, ['version', 'providerId', 'connectionId', 'authSource', 'modelId', 'effort', 'verificationStatus', 'verifiedAt', 'policy'])",
+      "to": "false && !hasOnly(input, ['version', 'providerId', 'connectionId', 'authSource', 'modelId', 'effort', 'verificationStatus', 'verifiedAt', 'policy'])",
+      "testPath": "tests/provider-qa/unit/providers.test.ts",
+      "testName": "rejects credential values and secret-store keys from persisted metadata",
+      "expectedFailure": "credential values must not be serialized into run metadata"
+    },
+    {
+      "id": "mismatched-provider-source-metadata-accepted",
+      "area": "provider-source ownership in run metadata",
+      "file": "src/domain/providers.ts",
+      "from": "|| !isSupportedProviderSource(input.providerId, input.authSource)) return { ok: false, code: 'provider.metadata.provider'",
+      "to": "|| false) return { ok: false, code: 'provider.metadata.provider'",
+      "testPath": "tests/provider-qa/unit/providers.test.ts",
+      "testName": "rejects metadata with mismatched provider and authentication source",
+      "expectedFailure": "route metadata must enforce provider/source ownership"
+    },
+    {
+      "id": "selected-connection-secret-crossed",
+      "area": "same-provider connection credential isolation",
+      "file": "src/adapters/providers/connection-service.ts",
+      "from": "const credential = await this.credentialFor(connection);",
+      "to": "const credential = await this.credentialFor(this.connections.find(item => item.providerId === connection.providerId)!);",
+      "testPath": "tests/provider-qa/integration/connection-service.test.ts",
+      "testName": "routes only the selected same-provider connection secret after exact model and effort verification",
+      "expectedFailure": "resolution must use the selected connection only"
+    },
+    {
+      "id": "unverified-effort-reuses-model-verification",
+      "area": "exact model-effort verification tuple",
+      "file": "src/adapters/providers/connection-service.ts",
+      "from": "!connection.verifiedSelections.some(item => item.modelId === selection.modelId && item.effort === selection.effort)",
+      "to": "!connection.verifiedSelections.some(item => item.modelId === selection.modelId)",
+      "testPath": "tests/provider-qa/integration/connection-service.test.ts",
+      "testName": "requires the exact verified effort for the selected model",
+      "expectedFailure": "promise resolved"
+    },
+    {
+      "id": "credential-rotation-retains-prior-verification",
+      "area": "credential rotation lifecycle",
+      "file": "src/adapters/providers/connection-service.ts",
+      "from": "...(credentialChanged ? { verificationStatus: 'unverified' as const, verifiedSelections: [] } : {}),\n    };\n    if (credentialChanged) { delete next.verifiedAt; delete next.lastFailure; }",
+      "to": "...(credentialChanged ? { verificationStatus: previous.verificationStatus, verifiedSelections: previous.verifiedSelections } : {}),\n    };",
+      "testPath": "tests/provider-qa/integration/connection-service.test.ts",
+      "testName": "invalidates prior verification on credential rotation and deletes the superseded secret",
+      "expectedFailure": "promise resolved"
+    },
+    {
+      "id": "quota-mapped-to-generic-transport",
+      "area": "safe quota outcome classification",
+      "file": "src/adapters/providers/connection-service.ts",
+      "from": "if (code.includes('quota') || code.includes('billing')) return 'quota';",
+      "to": "if (code.includes('quota') || code.includes('billing')) return 'transport';",
+      "testPath": "tests/provider-qa/integration/connection-service.test.ts",
+      "testName": "records quota as a safe verification failure without selecting a second provider",
+      "expectedFailure": "provider.quota"
+    },
+    {
+      "id": "codex-routed-through-claude-adapter",
+      "area": "selected provider transport",
+      "file": "src/adapters/providers/connection-service.ts",
+      "from": "case 'codex': return new CodexCliAdapter({",
+      "to": "case 'codex': return new ClaudeCodeAdapter({",
+      "testPath": "tests/provider-qa/integration/connection-service.test.ts",
+      "testName": "constructs the selected provider transport without crossing adapter families",
+      "expectedFailure": "CodexCliAdapter"
+    },
+    {
+      "id": "selected-provider-run-falls-back-to-legacy-agent",
+      "area": "manual routing and no provider fallback",
+      "file": "src/application/project-service.ts",
+      "from": "agent: resolved?.agent ?? this.agent",
+      "to": "agent: this.agent",
+      "testPath": "tests/provider-qa/integration/project-routing.test.ts",
+      "testName": "does not fall back to the legacy agent after the selected provider fails with quota",
+      "expectedFailure": "quota failure must come from the selected provider adapter"
+    },
+    {
+      "id": "provider-route-snapshot-omitted-from-run-record",
+      "area": "immutable safe provider run metadata",
+      "file": "src/application/project-service.ts",
+      "from": "if (resolved) record.providerSelection = structuredClone(resolved.metadata);",
+      "to": "if (false && resolved) record.providerSelection = structuredClone(resolved.metadata);",
+      "testPath": "tests/provider-qa/integration/project-routing.test.ts",
+      "testName": "pins safe route metadata to a committed run after the connection is renamed and removed",
+      "expectedFailure": "accepted provider run must persist the exact safe selection snapshot"
+    },
+    {
+      "id": "unknown-provider-run-metadata-fields-accepted",
+      "area": "strict provider run-record metadata shape",
+      "file": "src/domain/providers.ts",
+      "from": "if (!isRecord(input) || !hasOnly(input, ['version', 'providerId', 'connectionId', 'authSource', 'modelId', 'effort', 'verificationStatus', 'verifiedAt', 'policy'])) return { ok: false, code: 'provider.metadata.shape'",
+      "to": "if (!isRecord(input) || false) return { ok: false, code: 'provider.metadata.shape'",
+      "testPath": "tests/provider-qa/unit/providers.test.ts",
+      "testName": "rejects unknown, stale, or malformed selection fields",
+      "expectedFailure": "unknown route metadata fields must be rejected"
+    },
+    {
+      "id": "provider-run-cancel-routed-to-legacy-agent",
+      "area": "pinned provider adapter cancellation",
+      "file": "src/application/project-service.ts",
+      "from": "await (managed.agent ?? this.agent).cancel(id);",
+      "to": "await this.agent.cancel(id);",
+      "testPath": "tests/provider-qa/integration/project-routing.test.ts",
+      "testName": "cancels the selected adapter before commit and leaves the design revision unchanged",
+      "expectedFailure": "cancellation must use the run-pinned provider adapter"
+    },
+    {
+      "id": "duplicate-local-account-source-accepted",
+      "area": "local provider account identity uniqueness",
+      "file": "src/adapters/providers/connection-service.ts",
+      "from": "if (!credentialRequired(input.authSource) && this.connections.some(connection => connection.providerId === input.providerId && connection.authSource === input.authSource)) throw new ProviderAdapterError('A connection for this installed provider account already exists on this device.', 'provider.auth_source_duplicate');",
+      "to": "if (false && this.connections.some(connection => connection.providerId === input.providerId && connection.authSource === input.authSource)) throw new ProviderAdapterError('A connection for this installed provider account already exists on this device.', 'provider.auth_source_duplicate');",
+      "testPath": "tests/provider-qa/integration/connection-service.test.ts",
+      "testName": "allows only one connection for each installed local-account source",
+      "expectedFailure": "duplicate local-account identities must be rejected"
+    },
+    {
+      "id": "verification-timeout-classified-as-invalid-response",
+      "area": "verification timeout classification",
+      "file": "src/adapters/providers/connection-service.ts",
+      "from": "const category = verificationTimedOut || (error instanceof ProviderAdapterError && error.code === 'provider.verify_timeout') ? 'timeout' : classifyFailure(error);",
+      "to": "const category = verificationTimedOut ? 'invalid-response' : (error instanceof ProviderAdapterError && error.code === 'provider.verify_timeout') ? 'timeout' : classifyFailure(error);",
+      "testPath": "tests/provider-qa/integration/connection-service.test.ts",
+      "testName": "records a verification deadline as timeout rather than malformed response",
+      "expectedFailure": "provider.timeout"
+    },
+    {
+      "id": "old-credential-cleanup-not-queued",
+      "area": "durable credential cleanup after rotation",
+      "file": "src/adapters/providers/connection-service.ts",
+      "from": "if (previous.secretRef && nextSecretRef !== previous.secretRef) this.pendingSecretDeletes = enqueueDelete(this.pendingSecretDeletes, previous.secretRef);",
+      "to": "if (false && previous.secretRef && nextSecretRef !== previous.secretRef) this.pendingSecretDeletes = enqueueDelete(this.pendingSecretDeletes, previous.secretRef);",
+      "testPath": "tests/provider-qa/integration/connection-service.test.ts",
+      "testName": "tracks a failed old-secret deletion durably and retries it after reopening the service",
+      "expectedFailure": "cleanup failure must remain durable and visible"
+    },
+    {
+      "id": "new-secret-ref-not-staged-before-write",
+      "area": "create-time secret cleanup crash safety",
+      "file": "src/adapters/providers/connection-service.ts",
+      "from": "this.pendingSecretDeletes = enqueueDelete(priorQueue, secretRef);",
+      "to": "this.pendingSecretDeletes = priorQueue;",
+      "testPath": "tests/provider-qa/integration/connection-service.test.ts",
+      "testName": "stages a credential reference before secret write and recovers a partial create after restart",
+      "expectedFailure": "secret reference must be durably staged before the secret write"
+    },
+    {
+      "id": "cleanup-queue-not-retried-on-reopen",
+      "area": "secret cleanup recovery after restart",
+      "file": "src/adapters/providers/connection-service.ts",
+      "from": "    await service.drainCleanupQueue();\n    return service;",
+      "to": "    if (false) await service.drainCleanupQueue();\n    return service;",
+      "testPath": "tests/provider-qa/integration/connection-service.test.ts",
+      "testName": "tracks a failed old-secret deletion durably and retries it after reopening the service",
+      "expectedFailure": "pending secret deletes must retry when the service reopens"
+    },
+    {
+      "id": "provider-v1-store-not-migrated-to-cleanup-schema",
+      "area": "provider metadata schema migration",
+      "file": "src/adapters/providers/connection-service.ts",
+      "from": "else if (needsMigration) await service.save();",
+      "to": "else if (false && needsMigration) await service.save();",
+      "testPath": "tests/provider-qa/integration/connection-service.test.ts",
+      "testName": "continues loading legacy metadata that already contains duplicate local-account records",
+      "expectedFailure": "legacy metadata must migrate to the durable cleanup schema"
+    },
+    {
+      "id": "claude-subscription-local-instructions-enabled",
+      "area": "isolated Claude subscription CLI launch",
+      "file": "src/adapters/providers/claude-code-adapter.ts",
+      "from": "'--safe-mode', '--restricted',",
+      "to": "'--safe-mode-disabled', '--restricted',",
+      "testPath": "tests/provider-qa/integration/adapter-failures.test.ts",
+      "testName": "launches in a temporary working directory with user/project customizations disabled",
+      "expectedFailure": "Claude subscription must isolate local customizations and MCP tools"
+    },
+    {
+      "id": "cli-deadline-misclassified-as-network-error",
+      "area": "CLI provider timeout classification",
+      "file": "src/adapters/providers/cli-transport.ts",
+      "from": "if (timedOut) throw new ProviderAdapterError('The provider exceeded the run time limit.', 'agent.timeout');",
+      "to": "if (timedOut) throw new ProviderAdapterError('The provider exceeded the run time limit.', 'provider.network');",
+      "testPath": "tests/provider-qa/integration/adapter-failures.test.ts",
+      "testName": "terminates on deadline and caller cancellation with distinct terminal outcomes",
+      "expectedFailure": "agent.timeout"
+    },
+    {
+      "id": "closed-parent-skips-process-group-sigkill",
+      "area": "CLI cancellation descendant escalation",
+      "file": "src/adapters/providers/cli-transport.ts",
+      "from": "if (processGroupId) {\n      try { process.kill(-processGroupId, signal); } catch { /* The process group already exited. */ }",
+      "to": "if (processGroupId && signal !== 'SIGKILL') {\n      try { process.kill(-processGroupId, signal); } catch { /* The process group already exited. */ }",
+      "testPath": "tests/provider-qa/integration/adapter-corrections.test.ts",
+      "testName": "kills a surviving process-group grandchild after its parent exits on abort",
+      "expectedFailure": "instead of rejecting"
+    },
+    {
+      "id": "claude-auth-error-mapped-to-generic-cli-failure",
+      "area": "safe structured Claude authentication classification",
+      "file": "src/adapters/providers/claude-code-adapter.ts",
+      "from": "if (type === 'authentication_error') return new ProviderAdapterError('Claude rejected this connection. Reconnect it and try again.', 'provider.authentication');",
+      "to": "if (type === 'authentication_error') return new ProviderAdapterError('Claude rejected this connection. Reconnect it and try again.', 'provider.cli_failed');",
+      "testPath": "tests/provider-qa/integration/adapter-corrections.test.ts",
+      "testName": "classifies structured Claude authentication_error failures without retaining provider prose or credentials",
+      "expectedFailure": "provider.authentication"
+    },
+    {
+      "id": "codex-catalog-omits-hidden-account-models",
+      "area": "complete account catalog request",
+      "file": "src/adapters/providers/codex-model-catalog.ts",
+      "from": "reader({ limit: options.pageSize, includeHidden: true,",
+      "to": "reader({ limit: options.pageSize, includeHidden: false,",
+      "testPath": "tests/provider-qa/integration/model-catalog.test.ts",
+      "testName": "requests every page including hidden models and preserves per-model effort order",
+      "expectedFailure": "includeHidden must be true"
+    },
+    {
+      "id": "codex-catalog-cursor-cycle-not-detected",
+      "area": "bounded catalog pagination",
+      "file": "src/adapters/providers/codex-model-catalog.ts",
+      "from": "if (cursors.has(raw.nextCursor)) { partial = true; break; }",
+      "to": "if (false && cursors.has(raw.nextCursor)) { partial = true; break; }",
+      "testPath": "tests/provider-qa/integration/model-catalog.test.ts",
+      "testName": "detects repeated cursors and marks malformed model records as partial",
+      "expectedFailure": "repeated cursors must stop pagination promptly"
+    },
+    {
+      "id": "codex-catalog-duplicate-overwrites-original-efforts",
+      "area": "stable duplicate model handling",
+      "file": "src/adapters/providers/codex-model-catalog.ts",
+      "from": "if (!models.has(parsed.model.id)) models.set(parsed.model.id, parsed.model);",
+      "to": "models.set(parsed.model.id, parsed.model);",
+      "testPath": "tests/provider-qa/integration/model-catalog.test.ts",
+      "testName": "deduplicates repeated IDs without merging unrelated effort sets",
+      "expectedFailure": "first record and its effort set must remain stable across duplicate IDs"
+    },
+    {
+      "id": "codex-catalog-marks-discovery-as-account-available",
+      "area": "discovery does not imply inference access",
+      "file": "src/adapters/providers/codex-model-catalog.ts",
+      "from": "availability: 'unknown',",
+      "to": "availability: 'available',",
+      "testPath": "tests/provider-qa/integration/model-catalog.test.ts",
+      "testName": "requests every page including hidden models and preserves per-model effort order",
+      "expectedFailure": "discovery availability must remain 'unknown' until exact verification"
+    },
+    {
+      "id": "codex-api-key-reuses-local-account-catalog",
+      "area": "authentication-source catalog isolation",
+      "file": "src/adapters/providers/connection-service.ts",
+      "from": "if (connection.authSource !== 'chatgpt') return { models: [], catalogStatus: 'unknown' };",
+      "to": "if (false && connection.authSource !== 'chatgpt') return { models: [], catalogStatus: 'unknown' };",
+      "testPath": "tests/provider-qa/integration/model-catalog.test.ts",
+      "testName": "keeps the ChatGPT account catalog separate from API-key connections and exact verification",
+      "expectedFailure": "API-key connections must never reuse the local ChatGPT account catalog"
+    },
+    {
+      "id": "codex-verifies-effort-not-advertised-for-model",
+      "area": "model-specific effort verification",
+      "file": "src/adapters/providers/connection-service.ts",
+      "from": "if (model && !model.supportedEfforts.includes(selection.effort)) throw new ProviderAdapterError('This effort is not supported by the selected model.', 'provider.effort_unsupported');",
+      "to": "if (false && model && !model.supportedEfforts.includes(selection.effort)) throw new ProviderAdapterError('This effort is not supported by the selected model.', 'provider.effort_unsupported');",
+      "testPath": "tests/provider-qa/integration/model-catalog.test.ts",
+      "testName": "keeps the ChatGPT account catalog separate from API-key connections and exact verification",
+      "expectedFailure": "AssertionError"
+    },
+    {
+      "id": "codex-dynamic-catalog-appends-global-static-candidate",
+      "area": "account scoped model list",
+      "file": "src/adapters/providers/connection-service.ts",
+      "from": "? (codexDiscovery?.models ?? [])",
+      "to": "? [...KNOWN_MODELS.codex.map(model => ({ id: model.id, label: model.label, availability: 'unknown' as const, entitlement: null, supportedEfforts: [...model.efforts] })), ...(codexDiscovery?.models ?? [])]",
+      "testPath": "tests/provider-qa/integration/model-catalog.test.ts",
+      "testName": "keeps the ChatGPT account catalog separate from API-key connections and exact verification",
+      "expectedFailure": "AssertionError"
+    },
+    {
+      "id": "claude-session-environment-drops-user-identity",
+      "area": "Claude local session identity",
+      "file": "src/adapters/providers/claude-runtime.ts",
+      "from": "'PATH', 'HOME', 'USER', 'LOGNAME', 'USERPROFILE'",
+      "to": "'PATH', 'HOME', 'USERPROFILE'",
+      "testPath": "tests/provider-qa/integration/claude-session-catalog.test.ts",
+      "testName": "preserves USER and LOGNAME while excluding ambient provider secrets and custom execution configuration",
+      "expectedFailure": "local-user-fixture"
+    },
+    {
+      "id": "claude-nonzero-auth-status-accepted-as-authenticated",
+      "area": "Claude session status evidence",
+      "file": "src/adapters/providers/claude-runtime.ts",
+      "from": "if (parsed.loggedIn && result.exitCode !== 0) return { status: 'unknown', checkedAt };",
+      "to": "if (false && parsed.loggedIn && result.exitCode !== 0) return { status: 'unknown', checkedAt };",
+      "testPath": "tests/provider-qa/integration/claude-session-catalog.test.ts",
+      "testName": "keeps missing, malformed and timed-out auth checks distinct from successful recognition",
+      "expectedFailure": "status: 'unknown'"
+    },
+    {
+      "id": "claude-catalog-omits-verbose-sdk-control-mode",
+      "area": "Claude read-only SDK catalog protocol",
+      "file": "src/adapters/providers/claude-runtime.ts",
+      "from": "'--output-format', 'stream-json', '--verbose', '--no-session-persistence'",
+      "to": "'--output-format', 'stream-json', '--no-session-persistence'",
+      "testPath": "tests/provider-qa/integration/claude-session-catalog.test.ts",
+      "testName": "reads advertised versioned models from SDK initialization without sending a prompt",
+      "expectedFailure": "--verbose"
+    },
+    {
+      "id": "claude-catalog-marks-discovery-as-inference-available",
+      "area": "Claude catalog does not imply inference verification",
+      "file": "src/adapters/providers/connection-service.ts",
+      "from": "models.set(model.id, { id: model.id, label: model.label, availability: 'unknown', entitlement: null, supportedEfforts: ['default', ...model.supportedEfforts] });",
+      "to": "models.set(model.id, { id: model.id, label: model.label, availability: 'available', entitlement: null, supportedEfforts: ['default', ...model.supportedEfforts] });",
+      "testPath": "tests/provider-qa/integration/claude-session-catalog.test.ts",
+      "testName": "keeps subscription evidence scoped and catalog discovery separate from exact inference verification",
+      "expectedFailure": "catalog discovery must remain unverified"
+    },
+    {
+      "id": "claude-catalog-accepts-unadvertised-effort",
+      "area": "Claude exact model effort verification",
+      "file": "src/adapters/providers/connection-service.ts",
+      "from": "if (model && selection.effort !== 'default' && !model.supportedEfforts.includes(selection.effort)) throw new ProviderAdapterError('This effort is not supported by the selected Claude model.', 'provider.effort_unsupported');",
+      "to": "if (false && model && selection.effort !== 'default' && !model.supportedEfforts.includes(selection.effort)) throw new ProviderAdapterError('This effort is not supported by the selected Claude model.', 'provider.effort_unsupported');",
+      "testPath": "tests/provider-qa/integration/claude-session-catalog.test.ts",
+      "testName": "keeps subscription evidence scoped and catalog discovery separate from exact inference verification",
+      "expectedFailure": "provider.effort_unsupported"
+    },
+    {
+      "id": "claude-api-key-misclassified-as-subscription-catalog",
+      "area": "Claude authentication-source catalog isolation",
+      "file": "src/adapters/providers/connection-service.ts",
+      "from": "connections.some(connection => connection.authSource === 'claude-subscription')",
+      "to": "connections.some(connection => connection.providerId === 'claude')",
+      "testPath": "tests/provider-qa/integration/claude-session-catalog.test.ts",
+      "testName": "keeps subscription evidence scoped and catalog discovery separate from exact inference verification",
+      "expectedFailure": "API-key connection must keep its independent static catalog"
+    },
+    {
+      "id": "claude-usage-limit-not-classified-as-quota",
+      "area": "Claude structured usage limit classification",
+      "file": "src/adapters/providers/claude-code-adapter.ts",
+      "from": "if (record.api_error === 'usage_limit_reached') return new ProviderAdapterError('Claude reports that this account has reached its usage limit.', 'provider.quota');",
+      "to": "if (false && record.api_error === 'usage_limit_reached') return new ProviderAdapterError('Claude reports that this account has reached its usage limit.', 'provider.quota');",
+      "testPath": "tests/provider-qa/integration/claude-session-catalog.test.ts",
+      "testName": "classifies only Claude usage_limit_reached as quota and keeps provider details out of the error",
+      "expectedFailure": "provider.quota"
+    }
+  ]
+}

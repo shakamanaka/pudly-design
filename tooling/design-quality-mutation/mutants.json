@@ -1,0 +1,112 @@
+{
+  "reportDirectory": ".codex-design/design-quality-mutation",
+  "timeoutMs": 120000,
+  "tests": [
+    "tests/quality-qa/composition.test.ts",
+    "tests/quality-qa/page-legibility.test.ts",
+    "tests/quality-qa/composition-retry.test.ts",
+    "tests/quality-qa/deadline-policy.test.ts",
+    "tests/quality-qa/claude-stream.test.ts"
+  ],
+  "mutants": [
+    {
+      "id": "page-width-check-disabled",
+      "file": "src/application/design-quality.ts",
+      "from": "if (!roots.some(node => node && (node.layout.width.kind === 'fill' || (node.layout.width.kind === 'fixed' && node.layout.width.value.kind === 'literal' && node.layout.width.value.value >= 1280)))) error('quality.page-width',",
+      "to": "if (false) error('quality.page-width',",
+      "testName": "reports every structural gap in a tiny text-only store skeleton"
+    },
+    {
+      "id": "structure-threshold-removed",
+      "file": "src/application/design-quality.ts",
+      "from": ".length < 4) error('quality.structure',",
+      "to": ".length < 0) error('quality.structure',",
+      "testName": "reports every structural gap in a tiny text-only store skeleton"
+    },
+    {
+      "id": "content-threshold-removed",
+      "file": "src/application/design-quality.ts",
+      "from": "if (texts.length < 6) error('quality.content',",
+      "to": "if (texts.length < 0) error('quality.content',",
+      "testName": "reports every structural gap in a tiny text-only store skeleton"
+    },
+    {
+      "id": "typography-threshold-removed",
+      "file": "src/application/design-quality.ts",
+      "from": "if (textRoles.size < 2) error('quality.typography',",
+      "to": "if (textRoles.size < 0) error('quality.typography',",
+      "testName": "reports every structural gap in a tiny text-only store skeleton"
+    },
+    {
+      "id": "visual-content-check-disabled",
+      "file": "src/application/design-quality.ts",
+      "from": "if (imageLed && !nodes.some(node => node.kind === 'vector' && node.pathData.trim())) error('quality.visual-content',",
+      "to": "if (false) error('quality.visual-content',",
+      "testName": "reports every structural gap in a tiny text-only store skeleton"
+    },
+    {
+      "id": "mobile-layout-check-disabled",
+      "file": "src/application/design-quality.ts",
+      "from": "  if (imageLed) {\n    for (const node of nodes) {",
+      "to": "  if (false) {\n    for (const node of nodes) {",
+      "testName": "detects a reversed mobile layout when a vertical correction only activates at tablet width",
+      "testPath": "tests/quality-qa/composition.test.ts"
+    },
+    {
+      "id": "vector-bounds-review-disabled",
+      "file": "src/application/design-quality.ts",
+      "from": "if (unboundedVector) error(",
+      "to": "if (false) error(",
+      "testName": "rejects a visible native vector with hug width at mobile or desktop",
+      "testPath": "tests/quality-qa/composition.test.ts"
+    },
+    {
+      "id": "text-contrast-review-disabled",
+      "file": "src/application/design-quality.ts",
+      "from": "if (lowContrastText) error(",
+      "to": "if (false) error(",
+      "testName": "flags white authored text on a cream section background",
+      "testPath": "tests/quality-qa/page-legibility.test.ts"
+    },
+    {
+      "id": "tablet-layout-review-disabled",
+      "file": "src/application/design-quality.ts",
+      "from": "if (longTabletRow) error(",
+      "to": "if (false) error(",
+      "testName": "flags long hug copy in a horizontal tablet row",
+      "testPath": "tests/quality-qa/page-legibility.test.ts"
+    },
+    {
+      "id": "full-page-default-budget-shortened",
+      "file": "src/application/design-brief.ts",
+      "from": "return inferDesignIntent(request) === 'page' ? FULL_PAGE_DESIGN_TIMEOUT_MS : DEFAULT_DESIGN_TIMEOUT_MS;",
+      "to": "return DEFAULT_DESIGN_TIMEOUT_MS;",
+      "testName": "gives full-page creation the larger bounded generation budget",
+      "testPath": "tests/quality-qa/deadline-policy.test.ts"
+    },
+    {
+      "id": "explicit-timeout-overridden-by-policy",
+      "file": "src/application/design-brief.ts",
+      "from": "if (explicitTimeout !== undefined) return explicitTimeout;",
+      "to": "if (explicitTimeout !== undefined) return DEFAULT_DESIGN_TIMEOUT_MS;",
+      "testName": "preserves an explicitly configured adapter deadline for a full-page request",
+      "testPath": "tests/quality-qa/deadline-policy.test.ts"
+    },
+    {
+      "id": "claude-duplicate-final-result-accepted",
+      "file": "src/adapters/providers/claude-code-adapter.ts",
+      "from": "if (resultOutput !== undefined) throw new ProviderAdapterError('Claude Code returned data after its final structured result.', 'protocol.response_missing');",
+      "to": "if (false) throw new ProviderAdapterError('Claude Code returned data after its final structured result.', 'protocol.response_missing');",
+      "testName": "rejects duplicate final result without emitting a partial response",
+      "testPath": "tests/quality-qa/claude-stream.test.ts"
+    },
+    {
+      "id": "retry-accepts-first-incomplete-draft",
+      "file": "src/application/project-service.ts",
+      "from": "if (!quality.length) break;",
+      "to": "if (true) break;",
+      "testName": "repairs a text-only puppy-shop skeleton once and commits only the complete proposal",
+      "testPath": "tests/quality-qa/composition-retry.test.ts"
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+# Copy to config.toml and replace the repository path for this checkout.
+# The launcher sets the index root and cache directory from its own location.
+[mcp_servers.codebase]
+command = "/absolute/path/to/codex-design/tooling/codebase/launch.sh"
+args = []
