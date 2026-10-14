@@ -1,6 +1,6 @@
 # Public repository readiness
 
-Prepared for Camilo Escobar, contact camilo.escobar2@utp.edu.co. Publication has not occurred.
+Prepared for Camilo Escobar, contact camilo.escobar2@utp.edu.co. Version 1.0.0 is prepared locally; publication is delegated to the author.
 
 ## Source and attribution
 
@@ -19,6 +19,6 @@ Default browser tests now use deterministic provider fixtures. The explicit live
 
 ## Git and publication boundary
 
-The existing unborn repository is on main. Local author and committer identity resolves to Camilo Escobar <camilo.escobar2@utp.edu.co>; no global identity changed. No commit template or active hook adds co-author trailers. Commits prepared for this project must omit Co-authored-by.
+The repository is on main. Local author and committer identity resolves to Camilo Escobar <camilo.escobar2@utp.edu.co>; no global identity changed. No commit template or active hook adds co-author trailers. Commits prepared for this project must omit Co-authored-by.
 
-Reviewed source is staged for a first commit. No commit, remote repository creation, push or GitHub publication has been performed. A subsequent user instruction will authorize publishing the public repository.
+Reviewed source is committed locally, with a separate 1.0.0 release-metadata commit and annotated v1.0.0 tag. The user instructed that they will handle the push. No remote repository creation, push or GitHub publication has been performed.

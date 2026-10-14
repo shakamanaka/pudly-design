@@ -1,8 +1,10 @@
 # Codex Design
 
-Codex Design is an early-stage, local-first visual design environment. Users describe a page, edit its elements on a canvas, and export the resulting design. The versioned `DesignDocument` is authoritative; the Vue canvas and export files are derived from it.
+Codex Design 1.0 is a basic, early-stage, local-first visual design environment. Users describe a page, edit its elements on a canvas, and export the resulting design. The versioned `DesignDocument` is authoritative; the Vue canvas and export files are derived from it.
 
 Generation is bounded to five minutes for ordinary requests and ten minutes for full-page creation by default. Provider connections let users select a verified provider, model, and effort for each run; the app does not silently switch providers or paid tiers. A recorded Luna/medium run establishes a usable baseline for one bounded page-generation workflow. It does not establish a general quality pass rate. Haiku generation has not passed acceptance, so its design quality remains unproven. See [design quality evidence](docs/design-quality-verification.md) for the recorded result and current limits.
+
+Version 1.0 covers the local editor and bounded generation workflow; it does not imply a complete hosted service or consistent premium design quality. See [release notes](CHANGELOG.md) for verified scope and limitations.
 
 ## Requirements
 
